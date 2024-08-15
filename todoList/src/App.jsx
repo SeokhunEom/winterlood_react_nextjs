@@ -1,6 +1,7 @@
 import "./App.css";
 
-import { useCallback, useReducer, useRef } from "react";
+import { TodoDispatchContext, TodoStateContext } from "./TodoContext";
+import { useCallback, useMemo, useReducer, useRef } from "react";
 
 import Header from "./components/Header";
 import TodoEditor from "./components/TodoEditor";
@@ -49,11 +50,19 @@ function App() {
     dispatch({ type: "DELETE", data: targetId });
   }, []);
 
+  const memoizedDispatches = useMemo(() => {
+    return { onCreate, onUpdate, onDelete };
+  }, []);
+
   return (
     <div className="App">
       <Header />
-      <TodoEditor onCreate={onCreate} />
-      <TodoList todos={todos} onUpdate={onUpdate} onDelete={onDelete} />
+      <TodoStateContext.Provider value={todos}>
+        <TodoDispatchContext.Provider value={memoizedDispatches}>
+          <TodoEditor />
+          <TodoList />
+        </TodoDispatchContext.Provider>
+      </TodoStateContext.Provider>
     </div>
   );
 }
